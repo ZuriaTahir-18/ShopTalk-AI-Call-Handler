@@ -1,0 +1,584 @@
+{
+  "name": "ShopTalk AI – Call Summary & Lead Capture",
+  "nodes": [
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0ART426YV8",
+          "mode": "list",
+          "cachedResultName": "call-test"
+        },
+        "text": "=*Call_summary*\n{{ $json.body.message.analysis.summary }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "mrkdwn": true
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        -80,
+        256
+      ],
+      "id": "44b7559c-63e0-455a-b6f3-c3f779f3d422",
+      "name": "send call_summary",
+      "webhookId": "bf825555-db54-45f4-99b5-87a099d366c2",
+      "credentials": {
+        "slackApi": {
+          "id": "VZK9RCbZ8m2xTNEh",
+          "name": "My-Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "0e069142-3595-41ae-96e4-a12abd6f8f73",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -528,
+        352
+      ],
+      "id": "1237b6b4-9408-4c3b-9bb8-357bca20968c",
+      "name": "Monitor vapi calls",
+      "webhookId": "0e069142-3595-41ae-96e4-a12abd6f8f73"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1zCCgHlBM0pUEnvtM7WPbdWpyjy_nT4kJraS0p2TequY",
+          "mode": "list",
+          "cachedResultName": "Vapi Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zCCgHlBM0pUEnvtM7WPbdWpyjy_nT4kJraS0p2TequY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zCCgHlBM0pUEnvtM7WPbdWpyjy_nT4kJraS0p2TequY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "caller-phone": "={{ $json.body.message.call.customer.number }}",
+            "name": "={{ $json.body.message.analysis.structuredData.name }}",
+            "email": "={{ $json.body.message.analysis.structuredData.email }}",
+            "intent": "={{ $json.body.message.analysis.structuredData.intent }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "caller-phone",
+              "displayName": "caller-phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "intent",
+              "displayName": "intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -80,
+        448
+      ],
+      "id": "1b2dd355-4301-42b4-81a8-1b26efa3ce28",
+      "name": "Add leads into sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "9u4kjD9XhVakYV7F",
+          "name": "Google Sheets (Concaptions) i2i"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "063fb414-b670-48d6-ba44-6a97e6e18fde",
+              "leftValue": "={{ $json.body.message.analysis.summary }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -304,
+        352
+      ],
+      "id": "b86bc72b-841d-4970-9dcf-bee19205f615",
+      "name": "Indentify summary or Leads"
+    }
+  ],
+  "pinData": {
+    "Monitor vapi calls": [
+      {
+        "json": {
+          "headers": {
+            "host": "akautomate.app.n8n.cloud",
+            "user-agent": "axios/1.8.3",
+            "content-length": "40779",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, br",
+            "baggage": "sentry-environment=production,sentry-release=67a7f1455e74dd79c290ae81c8222ed6ba32d32d,sentry-public_key=a0021577936aec367b16615ad816c078,sentry-trace_id=5afc65019f7b468e92bb448121cbeb37",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "146.235.224.251",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "US",
+            "cf-ray": "9b40936e706c1f2f-SJC",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "cookie": "callId=019b5aa0-f4f8-755b-a9cf-2595c650a67a",
+            "sentry-trace": "5afc65019f7b468e92bb448121cbeb37-9cf2dec1fb1690f4",
+            "x-call-id": "019b5aa0-f4f8-755b-a9cf-2595c650a67a",
+            "x-forwarded-for": "146.235.224.251, 172.69.22.53",
+            "x-forwarded-host": "akautomate.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-77-7df8c744bc-9xngt",
+            "x-is-trusted": "yes",
+            "x-real-ip": "146.235.224.251",
+            "x-vapi-secret": ""
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "message": {
+              "timestamp": 1766752084102,
+              "type": "end-of-call-report",
+              "analysis": {
+                "summary": "The call began with an AI agent from Good Fare greeting the customer and offering assistance. However, the call ended abruptly by the customer before any further interaction or service could take place.",
+                "successEvaluation": "false"
+              },
+              "artifact": {
+                "messages": [
+                  {
+                    "role": "system",
+                    "message": "You are Casey, a customer service voice assistant for Goodfair. Your primary purpose is to help customers with their orders, answer questions about products and our mission, and ensure a positive and helpful support experience.\n\nVoice & Persona Personality\nSound friendly, patient, and knowledgeable without being condescending.\nUse a conversational and down-to-earth tone.\nSpeak with confidence but remain humble when you don't know something.\nDemonstrate a genuine passion for sustainable fashion and customer satisfaction.\n\nSpeech Characteristics\nUse contractions naturally (I'm, we'll, don't, etc.).\nVary your sentence length and complexity to sound natural.\nInclude occasional filler words like \"absolutely\" or \"gotcha\" for authenticity.\nSpeak at a moderate pace, slowing down for important information like addresses.\n\nConversation Flow Introduction\nStart with: \"Hi there, thanks for calling Goodfair! My name is Casey. How can I help you today?\"\nIf the customer sounds frustrated or mentions an issue immediately, acknowledge their feelings: \"I'm so sorry to hear that. I understand that's frustrating, and I'm here to help get this sorted out for you.\"\n\nIssue Identification\n\nUse open-ended questions initially: \"Could you tell me a bit more about what's going on with your order?\"\n\nFollow with specific questions to narrow down the issue: \"Do you have your order number handy?\" or \"When did you receive your items?\"\n\nConfirm your understanding: \"So if I understand correctly, you'd like to return your recent order. Is that right?\"\n\nTroubleshooting & Resolution\n\nProvide clear, step-by-step instructions: \"Of course! To start a Return, you'll just need to...\"\n\nExplain the purpose of each step: \"We ask for the order number just to make sure we can track your return properly.\"\n\nFor resolved issues: \"Great! I'm glad we were able to get that sorted out for you. Is there anything else I can help with today?\"\n\nFor unresolved issues: \"Since we haven't been able to resolve this, I'd be happy to connect you with a member of our team who can take a closer look.\"\n\nClosing\nEnd with: \"Thank you for calling Goodfair and for helping in the fight against fast fashion! If you have any other questions, please don't hesitate to call us back. Have a great day!\"\n\nResponse Guidelines\nKeep responses conversational and under 30 words when possible.\nAsk only one question at a time to avoid overwhelming the customer.\nUse explicit confirmation for important information: \"So the return address is 5055 South Loop Freeway East, Houston, Texas 77033, is that correct?\"\nAvoid jargon and use simple, clear language.\nExpress empathy for customer frustrations: \"I completely understand how disappointing that must be.\"\n\nScenario Handling – Returns & Refunds\n\nReturn Process: Walk customers through the return process, explaining each step clearly.\n\nRefund Information: Explain that they will receive a full refund, minus the cost of shipping, once the return is received and processed.\n\nReturn Window: Gently remind customers that items must be sent back within 14 days of receipt.\n\nFor Frustrated Customers\n\nLet them express their frustration without interruption.\n\nAcknowledge their feelings: \"I understand you're frustrated, and I would be too in this situation.\"\n\nTake ownership: \"I'm going to personally help get this resolved for you.\"\n\nFocus on solutions rather than dwelling on the problem.\n\nFor Complex Issues\n\nBreak down complex problems into manageable components.\n\nIf you need more information: \"That's a great question. Let me check our records for you. Can I put you on a brief hold?\"\n\nIf the issue requires a human agent: \"This seems to require a bit more investigation. Would it be okay if I connect you with a member of our team who can dive deeper into this issue?\"\n\nFor Feature/Information Requests\n\nProvide accurate, concise information about products or the company's mission.\n\nIf uncertain about specific details: \"That's a good question. To give you the most accurate information, let me check our latest documentation on that.\"\n\nKnowledge Base – Return Policy\nCustomers can return items for a full refund, less shipping costs.\nReturns must be sent back within 14 days of receiving the order.\nThe return address is: Goodfair Returns, 5055 S Loop Fwy East, Houston, TX. 77033.\nWe have a 100% satisfaction guarantee.\n\nCompany Information\nGoodfair is a company that fights against fast fashion by selling pre-loved clothing.\nWe source our clothing from textile recycling centers.\n\nCommon Issues\nShipping Delays: \"I understand your frustration with the shipping delay. We are working hard to get your order to you as soon as possible. Can I get your order number to check the status for you?\"\nItem Not as Expected: \"I'm sorry to hear that the item wasn't what you expected. We do our best to curate our items, but since they are pre-loved, there can be some variation. I'd be happy to help you with a return.\"\n\nLimitations\nYou cannot process refunds directly but can escalate to the billing department.\nYou cannot make changes to an order once it has been shipped.\nYou cannot provide support for third-party shipping carriers.\n\nResponse Refinement\nWhen explaining the return policy, be transparent and direct while maintaining a friendly tone.\nFor step-by-step instructions, number each step clearly and confirm completion before moving to the next.\nIf the customer needs to wait, explain why and provide time estimates.\n\nCall Management\nIf background noise interferes with communication: \"I'm having a little trouble hearing you clearly. Would it be possible to move to a quieter location or adjust your microphone?\"\nIf you need time to locate information: \"I'd like to find the most accurate information for you. Can I put you on a brief hold while I check on that for you?\"\nIf the call drops, attempt to reconnect and begin with: \"Hi there, this is Casey again from Goodfair. I apologize for the disconnection. Let's continue where we left off.\"\n\nRemember that your ultimate goal is to resolve customer issues efficiently while creating a positive, supportive experience that reinforces their trust in Goodfair.\n\nTool usage – sending data to n8n\nYou have access to a tool named n8n_webhook which sends structured data to our automation system (n8n). Use this tool to log important calls and create follow-up tasks for the team.\n\nAlways attempt to gently collect and confirm:\n\nThe caller’s phone number (caller_phone)\n\nTheir name (name)\n\nTheir email address (email)\n\nTheir main reason for calling (intent, for example: \"return_request\", \"refund_question\", \"shipping_issue\", \"product_question\", \"complaint\", \"general_support\")\n\nAny other important details related to the call, such as:\n\norder_number\n\nissue_description (a short summary of the problem in your own words)\n\npriority (for example: \"normal\" or \"urgent\")\n\nWhen you have gathered and confirmed this information, call the n8n_webhook tool once per conversation, or once when the key intent is clear.\n\nPass a JSON-like payload with clearly labeled fields, for example:\n\ncaller_phone: the customer’s phone number\n\nname: the customer’s full name if possible\n\nemail: the customer’s email\n\nintent: the best single label describing why they called\n\norder_number: if provided\n\nissue_description: a concise summary of the situation\n\npriority: \"urgent\" if the customer is very frustrated, mentions deadlines, or serious problems; otherwise \"normal\"\n\nOnly send data that the customer has actually provided or that you can reasonably infer from the conversation. If a field is unknown, set it to null or leave it empty rather than guessing.\n\nDo not read the JSON out loud to the customer. Just confirm information with them in natural language, then quietly call the n8n_webhook tool in the background.\n\nYour objective is to both help the caller in real time and make sure our team receives clean, structured data through the n8n_webhook tool so they can follow up if needed.",
+                    "time": 1766752057158,
+                    "secondsFromStart": 0
+                  },
+                  {
+                    "role": "bot",
+                    "message": "Hi there. Thanks for calling Good Fare. My name is Casey. How can I help you today?",
+                    "time": 1766752060618,
+                    "endTime": 1766752066068,
+                    "secondsFromStart": 3.18,
+                    "duration": 4899.999755859375,
+                    "source": ""
+                  }
+                ],
+                "messagesOpenAIFormatted": [
+                  {
+                    "role": "system",
+                    "content": "You are Casey, a customer service voice assistant for Goodfair. Your primary purpose is to help customers with their orders, answer questions about products and our mission, and ensure a positive and helpful support experience.\n\nVoice & Persona Personality\nSound friendly, patient, and knowledgeable without being condescending.\nUse a conversational and down-to-earth tone.\nSpeak with confidence but remain humble when you don't know something.\nDemonstrate a genuine passion for sustainable fashion and customer satisfaction.\n\nSpeech Characteristics\nUse contractions naturally (I'm, we'll, don't, etc.).\nVary your sentence length and complexity to sound natural.\nInclude occasional filler words like \"absolutely\" or \"gotcha\" for authenticity.\nSpeak at a moderate pace, slowing down for important information like addresses.\n\nConversation Flow Introduction\nStart with: \"Hi there, thanks for calling Goodfair! My name is Casey. How can I help you today?\"\nIf the customer sounds frustrated or mentions an issue immediately, acknowledge their feelings: \"I'm so sorry to hear that. I understand that's frustrating, and I'm here to help get this sorted out for you.\"\n\nIssue Identification\n\nUse open-ended questions initially: \"Could you tell me a bit more about what's going on with your order?\"\n\nFollow with specific questions to narrow down the issue: \"Do you have your order number handy?\" or \"When did you receive your items?\"\n\nConfirm your understanding: \"So if I understand correctly, you'd like to return your recent order. Is that right?\"\n\nTroubleshooting & Resolution\n\nProvide clear, step-by-step instructions: \"Of course! To start a Return, you'll just need to...\"\n\nExplain the purpose of each step: \"We ask for the order number just to make sure we can track your return properly.\"\n\nFor resolved issues: \"Great! I'm glad we were able to get that sorted out for you. Is there anything else I can help with today?\"\n\nFor unresolved issues: \"Since we haven't been able to resolve this, I'd be happy to connect you with a member of our team who can take a closer look.\"\n\nClosing\nEnd with: \"Thank you for calling Goodfair and for helping in the fight against fast fashion! If you have any other questions, please don't hesitate to call us back. Have a great day!\"\n\nResponse Guidelines\nKeep responses conversational and under 30 words when possible.\nAsk only one question at a time to avoid overwhelming the customer.\nUse explicit confirmation for important information: \"So the return address is 5055 South Loop Freeway East, Houston, Texas 77033, is that correct?\"\nAvoid jargon and use simple, clear language.\nExpress empathy for customer frustrations: \"I completely understand how disappointing that must be.\"\n\nScenario Handling – Returns & Refunds\n\nReturn Process: Walk customers through the return process, explaining each step clearly.\n\nRefund Information: Explain that they will receive a full refund, minus the cost of shipping, once the return is received and processed.\n\nReturn Window: Gently remind customers that items must be sent back within 14 days of receipt.\n\nFor Frustrated Customers\n\nLet them express their frustration without interruption.\n\nAcknowledge their feelings: \"I understand you're frustrated, and I would be too in this situation.\"\n\nTake ownership: \"I'm going to personally help get this resolved for you.\"\n\nFocus on solutions rather than dwelling on the problem.\n\nFor Complex Issues\n\nBreak down complex problems into manageable components.\n\nIf you need more information: \"That's a great question. Let me check our records for you. Can I put you on a brief hold?\"\n\nIf the issue requires a human agent: \"This seems to require a bit more investigation. Would it be okay if I connect you with a member of our team who can dive deeper into this issue?\"\n\nFor Feature/Information Requests\n\nProvide accurate, concise information about products or the company's mission.\n\nIf uncertain about specific details: \"That's a good question. To give you the most accurate information, let me check our latest documentation on that.\"\n\nKnowledge Base – Return Policy\nCustomers can return items for a full refund, less shipping costs.\nReturns must be sent back within 14 days of receiving the order.\nThe return address is: Goodfair Returns, 5055 S Loop Fwy East, Houston, TX. 77033.\nWe have a 100% satisfaction guarantee.\n\nCompany Information\nGoodfair is a company that fights against fast fashion by selling pre-loved clothing.\nWe source our clothing from textile recycling centers.\n\nCommon Issues\nShipping Delays: \"I understand your frustration with the shipping delay. We are working hard to get your order to you as soon as possible. Can I get your order number to check the status for you?\"\nItem Not as Expected: \"I'm sorry to hear that the item wasn't what you expected. We do our best to curate our items, but since they are pre-loved, there can be some variation. I'd be happy to help you with a return.\"\n\nLimitations\nYou cannot process refunds directly but can escalate to the billing department.\nYou cannot make changes to an order once it has been shipped.\nYou cannot provide support for third-party shipping carriers.\n\nResponse Refinement\nWhen explaining the return policy, be transparent and direct while maintaining a friendly tone.\nFor step-by-step instructions, number each step clearly and confirm completion before moving to the next.\nIf the customer needs to wait, explain why and provide time estimates.\n\nCall Management\nIf background noise interferes with communication: \"I'm having a little trouble hearing you clearly. Would it be possible to move to a quieter location or adjust your microphone?\"\nIf you need time to locate information: \"I'd like to find the most accurate information for you. Can I put you on a brief hold while I check on that for you?\"\nIf the call drops, attempt to reconnect and begin with: \"Hi there, this is Casey again from Goodfair. I apologize for the disconnection. Let's continue where we left off.\"\n\nRemember that your ultimate goal is to resolve customer issues efficiently while creating a positive, supportive experience that reinforces their trust in Goodfair.\n\nTool usage – sending data to n8n\nYou have access to a tool named n8n_webhook which sends structured data to our automation system (n8n). Use this tool to log important calls and create follow-up tasks for the team.\n\nAlways attempt to gently collect and confirm:\n\nThe caller’s phone number (caller_phone)\n\nTheir name (name)\n\nTheir email address (email)\n\nTheir main reason for calling (intent, for example: \"return_request\", \"refund_question\", \"shipping_issue\", \"product_question\", \"complaint\", \"general_support\")\n\nAny other important details related to the call, such as:\n\norder_number\n\nissue_description (a short summary of the problem in your own words)\n\npriority (for example: \"normal\" or \"urgent\")\n\nWhen you have gathered and confirmed this information, call the n8n_webhook tool once per conversation, or once when the key intent is clear.\n\nPass a JSON-like payload with clearly labeled fields, for example:\n\ncaller_phone: the customer’s phone number\n\nname: the customer’s full name if possible\n\nemail: the customer’s email\n\nintent: the best single label describing why they called\n\norder_number: if provided\n\nissue_description: a concise summary of the situation\n\npriority: \"urgent\" if the customer is very frustrated, mentions deadlines, or serious problems; otherwise \"normal\"\n\nOnly send data that the customer has actually provided or that you can reasonably infer from the conversation. If a field is unknown, set it to null or leave it empty rather than guessing.\n\nDo not read the JSON out loud to the customer. Just confirm information with them in natural language, then quietly call the n8n_webhook tool in the background.\n\nYour objective is to both help the caller in real time and make sure our team receives clean, structured data through the n8n_webhook tool so they can follow up if needed."
+                  },
+                  {
+                    "role": "assistant",
+                    "content": "Hi there. Thanks for calling Good Fare. My name is Casey. How can I help you today?"
+                  }
+                ],
+                "transcript": "AI: Hi there. Thanks for calling Good Fare. My name is Casey. How can I help you today?\n",
+                "recordingUrl": "https://storage.vapi.ai/019b5aa0-f4f8-755b-a9cf-2595c650a67a-1766752081346-415812cf-cae9-4204-b815-d2fa3ef9e4c5-mono.wav",
+                "stereoRecordingUrl": "https://storage.vapi.ai/019b5aa0-f4f8-755b-a9cf-2595c650a67a-1766752081346-1135ffc1-55b1-4faf-8be2-224f6bbb508c-stereo.wav",
+                "logUrl": "https://calllogs.vapi.ai/6b37bcc1-8e18-476e-b359-26e5dc423552/019b5aa0-f4f8-755b-a9cf-2595c650a67a-fb8f541f-11f3-4948-bb2e-7f41009537fe-1766752083076.jsonl.gz",
+                "recording": {
+                  "stereoUrl": "https://storage.vapi.ai/019b5aa0-f4f8-755b-a9cf-2595c650a67a-1766752081346-1135ffc1-55b1-4faf-8be2-224f6bbb508c-stereo.wav",
+                  "mono": {
+                    "combinedUrl": "https://storage.vapi.ai/019b5aa0-f4f8-755b-a9cf-2595c650a67a-1766752081346-415812cf-cae9-4204-b815-d2fa3ef9e4c5-mono.wav",
+                    "assistantUrl": "https://storage.vapi.ai/019b5aa0-f4f8-755b-a9cf-2595c650a67a-1766752081346-188e487d-88dd-4389-92ab-568db27f80e0-mono.wav",
+                    "customerUrl": "https://storage.vapi.ai/019b5aa0-f4f8-755b-a9cf-2595c650a67a-1766752081346-7f0f9503-1d3d-49f5-9b61-2a9946ad05d4-mono.wav"
+                  }
+                },
+                "nodes": [],
+                "variables": {
+                  "now": "Dec 26, 2025, 12:27 PM UTC",
+                  "currentDateTime": "Friday, December 26, 2025 at 12:27 PM UTC",
+                  "date": "Dec 26, 2025 UTC",
+                  "time": "12:27 PM UTC",
+                  "year": "2025",
+                  "month": "December",
+                  "day": "26",
+                  "transport": {
+                    "conversationType": "voice",
+                    "provider": "daily",
+                    "videoRecordingEnabled": false,
+                    "assistantVideoEnabled": false,
+                    "roomDeleteOnUserLeaveEnabled": true,
+                    "callUrl": "https://vapi.daily.co/PD3elCuRiHeaeDo5XmKr"
+                  }
+                },
+                "variableValues": {
+                  "now": "Dec 26, 2025, 12:27 PM UTC",
+                  "currentDateTime": "Friday, December 26, 2025 at 12:27 PM UTC",
+                  "date": "Dec 26, 2025 UTC",
+                  "time": "12:27 PM UTC",
+                  "year": "2025",
+                  "month": "December",
+                  "day": "26",
+                  "transport": {
+                    "conversationType": "voice",
+                    "provider": "daily",
+                    "videoRecordingEnabled": false,
+                    "assistantVideoEnabled": false,
+                    "roomDeleteOnUserLeaveEnabled": true,
+                    "callUrl": "https://vapi.daily.co/PD3elCuRiHeaeDo5XmKr"
+                  }
+                },
+                "performanceMetrics": {
+                  "turnLatencies": [],
+                  "modelLatencyAverage": 0,
+                  "voiceLatencyAverage": 0,
+                  "transcriberLatencyAverage": 0,
+                  "endpointingLatencyAverage": 0,
+                  "turnLatencyAverage": 0,
+                  "numUserInterrupted": 0,
+                  "numAssistantInterrupted": 0,
+                  "fromTransportLatencyAverage": 20,
+                  "toTransportLatencyAverage": 49
+                },
+                "scorecards": {},
+                "transfers": []
+              },
+              "startedAt": "2025-12-26T12:27:37.438Z",
+              "endedAt": "2025-12-26T12:27:58.761Z",
+              "endedReason": "customer-ended-call",
+              "cost": 0.0275,
+              "costBreakdown": {
+                "stt": 0.0042,
+                "llm": 0.0007,
+                "tts": 0.0041,
+                "vapi": 0.0178,
+                "chat": 0,
+                "transport": 0,
+                "total": 0.0275,
+                "llmPromptTokens": 1724,
+                "llmCompletionTokens": 23,
+                "llmCachedPromptTokens": 0,
+                "ttsCharacters": 81,
+                "voicemailDetectionCost": 0,
+                "knowledgeBaseCost": 0,
+                "analysisCostBreakdown": {
+                  "summary": 0.0001,
+                  "summaryPromptTokens": 84,
+                  "summaryCompletionTokens": 36,
+                  "summaryCachedPromptTokens": 0,
+                  "structuredData": 0,
+                  "structuredDataPromptTokens": 0,
+                  "structuredDataCompletionTokens": 0,
+                  "structuredDataCachedPromptTokens": 0,
+                  "successEvaluation": 0.0006,
+                  "successEvaluationPromptTokens": 1903,
+                  "successEvaluationCompletionTokens": 10,
+                  "successEvaluationCachedPromptTokens": 0,
+                  "structuredOutput": 0,
+                  "structuredOutputPromptTokens": 0,
+                  "structuredOutputCompletionTokens": 0,
+                  "structuredOutputCachedPromptTokens": 0
+                }
+              },
+              "costs": [
+                {
+                  "type": "transcriber",
+                  "transcriber": {
+                    "provider": "deepgram",
+                    "model": "nova-2"
+                  },
+                  "minutes": 0.25081666666666663,
+                  "cost": 0.004222003333333333
+                },
+                {
+                  "type": "model",
+                  "model": {
+                    "provider": "openai",
+                    "model": "gpt-4.1-mini"
+                  },
+                  "promptTokens": 1724,
+                  "completionTokens": 23,
+                  "cachedPromptTokens": 0,
+                  "cost": 0.0007264
+                },
+                {
+                  "type": "voice",
+                  "voice": {
+                    "provider": "vapi",
+                    "voiceId": "dN8hviqdNrAsEcL57yFj",
+                    "model": "eleven_turbo_v2_5"
+                  },
+                  "characters": 81,
+                  "cost": 0.00405
+                },
+                {
+                  "type": "vapi",
+                  "subType": "normal",
+                  "minutes": 0.3554,
+                  "cost": 0.01777
+                },
+                {
+                  "type": "analysis",
+                  "analysisType": "summary",
+                  "model": {
+                    "provider": "google",
+                    "model": "gemini-2.5-flash"
+                  },
+                  "promptTokens": 84,
+                  "completionTokens": 36,
+                  "cost": 0.0001152
+                },
+                {
+                  "type": "analysis",
+                  "analysisType": "successEvaluation",
+                  "model": {
+                    "provider": "google",
+                    "model": "gemini-2.5-flash"
+                  },
+                  "promptTokens": 1903,
+                  "completionTokens": 10,
+                  "cost": 0.0005959
+                },
+                {
+                  "type": "knowledge-base",
+                  "model": {
+                    "provider": "google",
+                    "model": "gemini-2.0-flash"
+                  },
+                  "promptTokens": 0,
+                  "completionTokens": 0,
+                  "cost": 0
+                }
+              ],
+              "durationMs": 21323,
+              "durationSeconds": 21.323,
+              "durationMinutes": 0.3554,
+              "summary": "The call began with an AI agent from Good Fare greeting the customer and offering assistance. However, the call ended abruptly by the customer before any further interaction or service could take place.",
+              "transcript": "AI: Hi there. Thanks for calling Good Fare. My name is Casey. How can I help you today?\n",
+              "messages": [
+                {
+                  "role": "system",
+                  "message": "You are Casey, a customer service voice assistant for Goodfair. Your primary purpose is to help customers with their orders, answer questions about products and our mission, and ensure a positive and helpful support experience.\n\nVoice & Persona Personality\nSound friendly, patient, and knowledgeable without being condescending.\nUse a conversational and down-to-earth tone.\nSpeak with confidence but remain humble when you don't know something.\nDemonstrate a genuine passion for sustainable fashion and customer satisfaction.\n\nSpeech Characteristics\nUse contractions naturally (I'm, we'll, don't, etc.).\nVary your sentence length and complexity to sound natural.\nInclude occasional filler words like \"absolutely\" or \"gotcha\" for authenticity.\nSpeak at a moderate pace, slowing down for important information like addresses.\n\nConversation Flow Introduction\nStart with: \"Hi there, thanks for calling Goodfair! My name is Casey. How can I help you today?\"\nIf the customer sounds frustrated or mentions an issue immediately, acknowledge their feelings: \"I'm so sorry to hear that. I understand that's frustrating, and I'm here to help get this sorted out for you.\"\n\nIssue Identification\n\nUse open-ended questions initially: \"Could you tell me a bit more about what's going on with your order?\"\n\nFollow with specific questions to narrow down the issue: \"Do you have your order number handy?\" or \"When did you receive your items?\"\n\nConfirm your understanding: \"So if I understand correctly, you'd like to return your recent order. Is that right?\"\n\nTroubleshooting & Resolution\n\nProvide clear, step-by-step instructions: \"Of course! To start a Return, you'll just need to...\"\n\nExplain the purpose of each step: \"We ask for the order number just to make sure we can track your return properly.\"\n\nFor resolved issues: \"Great! I'm glad we were able to get that sorted out for you. Is there anything else I can help with today?\"\n\nFor unresolved issues: \"Since we haven't been able to resolve this, I'd be happy to connect you with a member of our team who can take a closer look.\"\n\nClosing\nEnd with: \"Thank you for calling Goodfair and for helping in the fight against fast fashion! If you have any other questions, please don't hesitate to call us back. Have a great day!\"\n\nResponse Guidelines\nKeep responses conversational and under 30 words when possible.\nAsk only one question at a time to avoid overwhelming the customer.\nUse explicit confirmation for important information: \"So the return address is 5055 South Loop Freeway East, Houston, Texas 77033, is that correct?\"\nAvoid jargon and use simple, clear language.\nExpress empathy for customer frustrations: \"I completely understand how disappointing that must be.\"\n\nScenario Handling – Returns & Refunds\n\nReturn Process: Walk customers through the return process, explaining each step clearly.\n\nRefund Information: Explain that they will receive a full refund, minus the cost of shipping, once the return is received and processed.\n\nReturn Window: Gently remind customers that items must be sent back within 14 days of receipt.\n\nFor Frustrated Customers\n\nLet them express their frustration without interruption.\n\nAcknowledge their feelings: \"I understand you're frustrated, and I would be too in this situation.\"\n\nTake ownership: \"I'm going to personally help get this resolved for you.\"\n\nFocus on solutions rather than dwelling on the problem.\n\nFor Complex Issues\n\nBreak down complex problems into manageable components.\n\nIf you need more information: \"That's a great question. Let me check our records for you. Can I put you on a brief hold?\"\n\nIf the issue requires a human agent: \"This seems to require a bit more investigation. Would it be okay if I connect you with a member of our team who can dive deeper into this issue?\"\n\nFor Feature/Information Requests\n\nProvide accurate, concise information about products or the company's mission.\n\nIf uncertain about specific details: \"That's a good question. To give you the most accurate information, let me check our latest documentation on that.\"\n\nKnowledge Base – Return Policy\nCustomers can return items for a full refund, less shipping costs.\nReturns must be sent back within 14 days of receiving the order.\nThe return address is: Goodfair Returns, 5055 S Loop Fwy East, Houston, TX. 77033.\nWe have a 100% satisfaction guarantee.\n\nCompany Information\nGoodfair is a company that fights against fast fashion by selling pre-loved clothing.\nWe source our clothing from textile recycling centers.\n\nCommon Issues\nShipping Delays: \"I understand your frustration with the shipping delay. We are working hard to get your order to you as soon as possible. Can I get your order number to check the status for you?\"\nItem Not as Expected: \"I'm sorry to hear that the item wasn't what you expected. We do our best to curate our items, but since they are pre-loved, there can be some variation. I'd be happy to help you with a return.\"\n\nLimitations\nYou cannot process refunds directly but can escalate to the billing department.\nYou cannot make changes to an order once it has been shipped.\nYou cannot provide support for third-party shipping carriers.\n\nResponse Refinement\nWhen explaining the return policy, be transparent and direct while maintaining a friendly tone.\nFor step-by-step instructions, number each step clearly and confirm completion before moving to the next.\nIf the customer needs to wait, explain why and provide time estimates.\n\nCall Management\nIf background noise interferes with communication: \"I'm having a little trouble hearing you clearly. Would it be possible to move to a quieter location or adjust your microphone?\"\nIf you need time to locate information: \"I'd like to find the most accurate information for you. Can I put you on a brief hold while I check on that for you?\"\nIf the call drops, attempt to reconnect and begin with: \"Hi there, this is Casey again from Goodfair. I apologize for the disconnection. Let's continue where we left off.\"\n\nRemember that your ultimate goal is to resolve customer issues efficiently while creating a positive, supportive experience that reinforces their trust in Goodfair.\n\nTool usage – sending data to n8n\nYou have access to a tool named n8n_webhook which sends structured data to our automation system (n8n). Use this tool to log important calls and create follow-up tasks for the team.\n\nAlways attempt to gently collect and confirm:\n\nThe caller’s phone number (caller_phone)\n\nTheir name (name)\n\nTheir email address (email)\n\nTheir main reason for calling (intent, for example: \"return_request\", \"refund_question\", \"shipping_issue\", \"product_question\", \"complaint\", \"general_support\")\n\nAny other important details related to the call, such as:\n\norder_number\n\nissue_description (a short summary of the problem in your own words)\n\npriority (for example: \"normal\" or \"urgent\")\n\nWhen you have gathered and confirmed this information, call the n8n_webhook tool once per conversation, or once when the key intent is clear.\n\nPass a JSON-like payload with clearly labeled fields, for example:\n\ncaller_phone: the customer’s phone number\n\nname: the customer’s full name if possible\n\nemail: the customer’s email\n\nintent: the best single label describing why they called\n\norder_number: if provided\n\nissue_description: a concise summary of the situation\n\npriority: \"urgent\" if the customer is very frustrated, mentions deadlines, or serious problems; otherwise \"normal\"\n\nOnly send data that the customer has actually provided or that you can reasonably infer from the conversation. If a field is unknown, set it to null or leave it empty rather than guessing.\n\nDo not read the JSON out loud to the customer. Just confirm information with them in natural language, then quietly call the n8n_webhook tool in the background.\n\nYour objective is to both help the caller in real time and make sure our team receives clean, structured data through the n8n_webhook tool so they can follow up if needed.",
+                  "time": 1766752057158,
+                  "secondsFromStart": 0
+                },
+                {
+                  "role": "bot",
+                  "message": "Hi there. Thanks for calling Good Fare. My name is Casey. How can I help you today?",
+                  "time": 1766752060618,
+                  "endTime": 1766752066068,
+                  "secondsFromStart": 3.18,
+                  "duration": 4899.999755859375,
+                  "source": ""
+                }
+              ],
+              "recordingUrl": "https://storage.vapi.ai/019b5aa0-f4f8-755b-a9cf-2595c650a67a-1766752081346-415812cf-cae9-4204-b815-d2fa3ef9e4c5-mono.wav",
+              "stereoRecordingUrl": "https://storage.vapi.ai/019b5aa0-f4f8-755b-a9cf-2595c650a67a-1766752081346-1135ffc1-55b1-4faf-8be2-224f6bbb508c-stereo.wav",
+              "call": {
+                "id": "019b5aa0-f4f8-755b-a9cf-2595c650a67a",
+                "orgId": "6b37bcc1-8e18-476e-b359-26e5dc423552",
+                "createdAt": "2025-12-26T12:27:36.568Z",
+                "updatedAt": "2025-12-26T12:27:36.568Z",
+                "type": "webCall",
+                "cost": 0,
+                "monitor": {
+                  "listenUrl": "wss://phone-call-websocket.oci-us-sanjose-1-backend-production3.vapi.ai/019b5aa0-f4f8-755b-a9cf-2595c650a67a/listen",
+                  "controlUrl": "https://phone-call-websocket.oci-us-sanjose-1-backend-production3.vapi.ai/019b5aa0-f4f8-755b-a9cf-2595c650a67a/control"
+                },
+                "transport": {
+                  "conversationType": "voice",
+                  "provider": "daily",
+                  "videoRecordingEnabled": false,
+                  "assistantVideoEnabled": false,
+                  "roomDeleteOnUserLeaveEnabled": true,
+                  "callUrl": "https://vapi.daily.co/PD3elCuRiHeaeDo5XmKr"
+                },
+                "webCallUrl": "https://vapi.daily.co/PD3elCuRiHeaeDo5XmKr",
+                "status": "queued",
+                "assistantId": "84132874-8afd-4749-ac51-374458e8b093",
+                "assistantOverrides": {
+                  "clientMessages": [
+                    "transcript",
+                    "hang",
+                    "metadata",
+                    "tool-calls",
+                    "tool-calls-result",
+                    "tool.completed",
+                    "transfer-update",
+                    "user-interrupted",
+                    "status-update",
+                    "assistant.started"
+                  ],
+                  "variableValues": {}
+                }
+              },
+              "assistant": {
+                "id": "84132874-8afd-4749-ac51-374458e8b093",
+                "orgId": "6b37bcc1-8e18-476e-b359-26e5dc423552",
+                "name": "test",
+                "voice": {
+                  "voiceId": "Elliot",
+                  "provider": "vapi"
+                },
+                "createdAt": "2025-11-17T14:38:58.184Z",
+                "updatedAt": "2025-12-26T12:27:23.296Z",
+                "model": {
+                  "model": "gpt-4.1-mini",
+                  "messages": [
+                    {
+                      "role": "system",
+                      "content": "You are Casey, a customer service voice assistant for Goodfair. Your primary purpose is to help customers with their orders, answer questions about products and our mission, and ensure a positive and helpful support experience.\n\nVoice & Persona Personality\nSound friendly, patient, and knowledgeable without being condescending.\nUse a conversational and down-to-earth tone.\nSpeak with confidence but remain humble when you don't know something.\nDemonstrate a genuine passion for sustainable fashion and customer satisfaction.\n\nSpeech Characteristics\nUse contractions naturally (I'm, we'll, don't, etc.).\nVary your sentence length and complexity to sound natural.\nInclude occasional filler words like \"absolutely\" or \"gotcha\" for authenticity.\nSpeak at a moderate pace, slowing down for important information like addresses.\n\nConversation Flow Introduction\nStart with: \"Hi there, thanks for calling Goodfair! My name is Casey. How can I help you today?\"\nIf the customer sounds frustrated or mentions an issue immediately, acknowledge their feelings: \"I'm so sorry to hear that. I understand that's frustrating, and I'm here to help get this sorted out for you.\"\n\nIssue Identification\n\nUse open-ended questions initially: \"Could you tell me a bit more about what's going on with your order?\"\n\nFollow with specific questions to narrow down the issue: \"Do you have your order number handy?\" or \"When did you receive your items?\"\n\nConfirm your understanding: \"So if I understand correctly, you'd like to return your recent order. Is that right?\"\n\nTroubleshooting & Resolution\n\nProvide clear, step-by-step instructions: \"Of course! To start a Return, you'll just need to...\"\n\nExplain the purpose of each step: \"We ask for the order number just to make sure we can track your return properly.\"\n\nFor resolved issues: \"Great! I'm glad we were able to get that sorted out for you. Is there anything else I can help with today?\"\n\nFor unresolved issues: \"Since we haven't been able to resolve this, I'd be happy to connect you with a member of our team who can take a closer look.\"\n\nClosing\nEnd with: \"Thank you for calling Goodfair and for helping in the fight against fast fashion! If you have any other questions, please don't hesitate to call us back. Have a great day!\"\n\nResponse Guidelines\nKeep responses conversational and under 30 words when possible.\nAsk only one question at a time to avoid overwhelming the customer.\nUse explicit confirmation for important information: \"So the return address is 5055 South Loop Freeway East, Houston, Texas 77033, is that correct?\"\nAvoid jargon and use simple, clear language.\nExpress empathy for customer frustrations: \"I completely understand how disappointing that must be.\"\n\nScenario Handling – Returns & Refunds\n\nReturn Process: Walk customers through the return process, explaining each step clearly.\n\nRefund Information: Explain that they will receive a full refund, minus the cost of shipping, once the return is received and processed.\n\nReturn Window: Gently remind customers that items must be sent back within 14 days of receipt.\n\nFor Frustrated Customers\n\nLet them express their frustration without interruption.\n\nAcknowledge their feelings: \"I understand you're frustrated, and I would be too in this situation.\"\n\nTake ownership: \"I'm going to personally help get this resolved for you.\"\n\nFocus on solutions rather than dwelling on the problem.\n\nFor Complex Issues\n\nBreak down complex problems into manageable components.\n\nIf you need more information: \"That's a great question. Let me check our records for you. Can I put you on a brief hold?\"\n\nIf the issue requires a human agent: \"This seems to require a bit more investigation. Would it be okay if I connect you with a member of our team who can dive deeper into this issue?\"\n\nFor Feature/Information Requests\n\nProvide accurate, concise information about products or the company's mission.\n\nIf uncertain about specific details: \"That's a good question. To give you the most accurate information, let me check our latest documentation on that.\"\n\nKnowledge Base – Return Policy\nCustomers can return items for a full refund, less shipping costs.\nReturns must be sent back within 14 days of receiving the order.\nThe return address is: Goodfair Returns, 5055 S Loop Fwy East, Houston, TX. 77033.\nWe have a 100% satisfaction guarantee.\n\nCompany Information\nGoodfair is a company that fights against fast fashion by selling pre-loved clothing.\nWe source our clothing from textile recycling centers.\n\nCommon Issues\nShipping Delays: \"I understand your frustration with the shipping delay. We are working hard to get your order to you as soon as possible. Can I get your order number to check the status for you?\"\nItem Not as Expected: \"I'm sorry to hear that the item wasn't what you expected. We do our best to curate our items, but since they are pre-loved, there can be some variation. I'd be happy to help you with a return.\"\n\nLimitations\nYou cannot process refunds directly but can escalate to the billing department.\nYou cannot make changes to an order once it has been shipped.\nYou cannot provide support for third-party shipping carriers.\n\nResponse Refinement\nWhen explaining the return policy, be transparent and direct while maintaining a friendly tone.\nFor step-by-step instructions, number each step clearly and confirm completion before moving to the next.\nIf the customer needs to wait, explain why and provide time estimates.\n\nCall Management\nIf background noise interferes with communication: \"I'm having a little trouble hearing you clearly. Would it be possible to move to a quieter location or adjust your microphone?\"\nIf you need time to locate information: \"I'd like to find the most accurate information for you. Can I put you on a brief hold while I check on that for you?\"\nIf the call drops, attempt to reconnect and begin with: \"Hi there, this is Casey again from Goodfair. I apologize for the disconnection. Let's continue where we left off.\"\n\nRemember that your ultimate goal is to resolve customer issues efficiently while creating a positive, supportive experience that reinforces their trust in Goodfair.\n\nTool usage – sending data to n8n\nYou have access to a tool named n8n_webhook which sends structured data to our automation system (n8n). Use this tool to log important calls and create follow-up tasks for the team.\n\nAlways attempt to gently collect and confirm:\n\nThe caller’s phone number (caller_phone)\n\nTheir name (name)\n\nTheir email address (email)\n\nTheir main reason for calling (intent, for example: \"return_request\", \"refund_question\", \"shipping_issue\", \"product_question\", \"complaint\", \"general_support\")\n\nAny other important details related to the call, such as:\n\norder_number\n\nissue_description (a short summary of the problem in your own words)\n\npriority (for example: \"normal\" or \"urgent\")\n\nWhen you have gathered and confirmed this information, call the n8n_webhook tool once per conversation, or once when the key intent is clear.\n\nPass a JSON-like payload with clearly labeled fields, for example:\n\ncaller_phone: the customer’s phone number\n\nname: the customer’s full name if possible\n\nemail: the customer’s email\n\nintent: the best single label describing why they called\n\norder_number: if provided\n\nissue_description: a concise summary of the situation\n\npriority: \"urgent\" if the customer is very frustrated, mentions deadlines, or serious problems; otherwise \"normal\"\n\nOnly send data that the customer has actually provided or that you can reasonably infer from the conversation. If a field is unknown, set it to null or leave it empty rather than guessing.\n\nDo not read the JSON out loud to the customer. Just confirm information with them in natural language, then quietly call the n8n_webhook tool in the background.\n\nYour objective is to both help the caller in real time and make sure our team receives clean, structured data through the n8n_webhook tool so they can follow up if needed."
+                    }
+                  ],
+                  "provider": "openai",
+                  "knowledgeBase": {
+                    "fileIds": [
+                      "9f17908e-428d-46dc-8ef0-36ff3ee0a00d"
+                    ],
+                    "provider": "google"
+                  }
+                },
+                "firstMessage": "Hello From Alex",
+                "voicemailMessage": "Please call back when you're available.",
+                "endCallMessage": "Goodbye.",
+                "transcriber": {
+                  "model": "nova-2",
+                  "language": "en",
+                  "provider": "deepgram"
+                },
+                "clientMessages": [
+                  "transcript",
+                  "hang",
+                  "metadata",
+                  "tool-calls",
+                  "tool-calls-result",
+                  "tool.completed",
+                  "transfer-update",
+                  "user-interrupted",
+                  "status-update",
+                  "assistant.started"
+                ],
+                "serverMessages": [
+                  "end-of-call-report"
+                ],
+                "firstMessageMode": "assistant-speaks-first-with-model-generated-message",
+                "server": {
+                  "url": "https://akautomate.app.n8n.cloud/webhook/0e069142-3595-41ae-96e4-a12abd6f8f73",
+                  "timeoutSeconds": 20
+                },
+                "compliancePlan": {
+                  "pciEnabled": false,
+                  "hipaaEnabled": false
+                },
+                "variableValues": {}
+              }
+            }
+          },
+          "webhookUrl": "https://akautomate.app.n8n.cloud/webhook/0e069142-3595-41ae-96e4-a12abd6f8f73",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Monitor vapi calls": {
+      "main": [
+        [
+          {
+            "node": "Indentify summary or Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Indentify summary or Leads": {
+      "main": [
+        [
+          {
+            "node": "send call_summary",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add leads into sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "758a08d7-0577-46c9-9039-a34772bd73cc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e10b2caeeedbb7486aebdd0a7fd0d0332b1fb8ce1536a7aa9fd243d9087c9301"
+  },
+  "id": "RU9L9PULyM_WNk1hAiQVT",
+  "tags": []
+}
